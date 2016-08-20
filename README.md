@@ -37,8 +37,11 @@ Navigate to board_games folder, then run from your terminal -
 ### Install Python / Git
 
 ```
+# Update Ubuntu
+
 sudo apt-get update
 sudo apt-get upgrade
+sudo apt-get install libssl-dev openssl
 
 # Install GIT
 sudo apt-get install git
@@ -66,6 +69,10 @@ cd ..
 rm Python-3.5.2.tgz
 sudo rm -rf Python-3.5.2/
 ```
+
+### Run Tests
+
+TODO
 
 ### Download App Source Code:
 

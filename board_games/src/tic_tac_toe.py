@@ -9,7 +9,8 @@ from .exceptions import InvalidMoveError
 
 
 class TicTacToe(object):
-
+    """Defines the Rules and maintains the State of the TicTacToe App.
+    """
     def __init__(self, play_bot=False, bot_level=1, player_a_marker="A", player_b_marker="B"):
 
         self.play_bot = play_bot

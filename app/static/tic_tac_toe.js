@@ -133,6 +133,9 @@ var APP = {
 
   serverMessage: function(action, data) {
     switch (action) {
+      case "open":
+        APP.messageUpdate("Connected to Game Server")
+        break;
       case "wait-pair":
         APP.gameStarted(data.game_id);
         APP.messageUpdate("Waiting for Pair to Join..");
@@ -163,8 +166,15 @@ var APP = {
           APP.messageUpdate("Game Ended.");
         }
         break;
+      case "error":
+        if (data.message) {
+          APP.messageUpdate(data.message)
+        } else {
+          APP.messageUpdate("Error Occured")
+        }
+        break;
        default:
-        console.log("No Action found: ", action, data);
+        APP.messageUpdate("Unknown Action: " + action);
     }
   },
 

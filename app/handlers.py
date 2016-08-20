@@ -10,18 +10,21 @@ from tornado.websocket import WebSocketHandler, WebSocketClosedError
 from tornado import concurrent
 from tornado import gen
 
+from app.game_managers import InvalidGameError
+
 logger = logging.getLogger("app")
 
 
 class IndexHandler(RequestHandler):
-    """Redirect to Tic-Tac-Toe"""
+    """Redirect to Tic-Tac-Toe
+    """
     def get(self):
         self.redirect('/tic-tac-toe')
 
 
 class TicTacToeHandler(RequestHandler):
-    """APP is live"""
-
+    """Render Game page
+    """
     def get(self):
         self.render("tic_tac_toe.html")
 
@@ -29,46 +32,42 @@ class TicTacToeHandler(RequestHandler):
 class TicTacToeSocketHandler(WebSocketHandler):
 
     def initialize(self, game_manager, *args, **kwargs):
+        """Initialize game parameters.  Use Game Manager to register game
+        """
         self.game_manager = game_manager
         self.game_id = None
-        self.game_result = ""
         super().initialize(*args, **kwargs)
 
     def open(self):
+        """Opens a Socket Connection to client
+        """
         self.send_message(action="open", message="Connected to Game Server")
 
-    def _convert_int(self, game_id):
-        try:
-            return None, int(game_id)
-        except (ValueError, TypeError):
-            return "Game numbers need to be Numeric: {}".format(game_id), None
-
-    def send_pair_message(self, action, **data):
-        paired_handler = self.game_manager.get_pair(self.game_id, self)
-        if paired_handler:
-            return paired_handler.send_message(action, **data)
-        else:
-            return "Could not send message to the other Player"
 
     def on_message(self, message):
-        # Verify the validity of message
+        """Respond to messages from connected client.
+        Messages are of form -
+        {
+            action: <action>,
+            <data>
+        }
+        Valid Actions: new, join, abort, move.
+        new - Request for new game
+        join - Join an existing game (but that's not been paired)
+        abort - Abort the game currently on
+        move - Record a move
+        """
         data = json.loads(message)
         action = data.get("action", "")
-        error_msg = ""
         if action == "move":
             # Game is going on
             # Set turn to False and send message to opponent
             player_selection = data.get("player_move")
             player_move = (int(player_selection[0]), int(player_selection[2]))
-            print(player_move)
             if player_move:
                 self.game_manager.record_move(self.game_id, player_move, self)
-            error_msg = self.send_message(action="opp-move")
-            if not error_msg:
-                error_msg = self.send_pair_message(action="move", opp_move=player_selection)
-            else:
-                # Send Error Message that Pair Disconnected?
-                pass
+            self.send_message(action="opp-move")
+            self.send_pair_message(action="move", opp_move=player_selection)
 
             # Check if the game is still ON
             if self.game_manager.has_game_ended(self.game_id):
@@ -80,49 +79,59 @@ class TicTacToeSocketHandler(WebSocketHandler):
 
         elif action == "join":
             # Get the game id
-            error_msg, game_id = self._convert_int(data.get("game_id"))
-
-            if game_id and self.game_manager.join_game(game_id, self):
+            try:
+                game_id = int(data.get("game_id"))
+                self.game_manager.join_game(game_id, self)
+            except (ValueError, TypeError, InvalidGameError):
+                self.send_message(action="error", message="Invalid Game Id: {}".format(data.get("game_id")))
+            else:
                 # Joined the game.
-                # Send message to Player A
                 self.game_id = game_id
                 # Tell both players that they have been paired, so reset the pieces
-                if not error_msg:
-                    error_msg = self.send_message(action="paired", game_id=game_id)
-                if not error_msg:
-                    error_msg = self.send_pair_message(action="paired", game_id=game_id)
+                self.send_message(action="paired", game_id=game_id)
+                self.send_pair_message(action="paired", game_id=game_id)
                 # One to wait, other to move
-                if not error_msg:
-                    error_msg = self.send_message(action="opp-move")
-                if not error_msg:
-                    error_msg = self.send_pair_message(action="move")
-            else:
-                error_msg = "Could not find the Game: {}".format(game_id)
+                self.send_message(action="opp-move")
+                self.send_pair_message(action="move")
 
         elif action == "new":
-            # new Game
             # Create a new game id and respond the game id
             self.game_id = self.game_manager.new_game(self)
-            if not error_msg:
-                error_msg = self.send_message(action="wait-pair", game_id=self.game_id)
+            self.send_message(action="wait-pair", game_id=self.game_id)
+
         elif action == "abort":
             self.game_manager.abort_game(self.game_id)
             self.send_message(action="end", game_id=self.game_id, result="A")
             self.send_pair_message(action="end", game_id=self.game_id, result="A")
             self.game_manager.end_game(self.game_id)
         else:
-            error_msg = "Unknown Action"
+            self.send_message(action="error", message="Unknown Action: {}".format(action))
 
-        if error_msg:
-            self.send_message(action="error", message=error_msg)
 
     def on_close(self):
-        """Overwrites WebSocketHandler.close"""
+        """Overwrites WebSocketHandler.close.
+        Close Game, send message to Paired client that game has ended
+        """
         self.send_pair_message(action="end", game_id=self.game_id, result="A")
         self.game_manager.end_game(self.game_id)
 
+    def send_pair_message(self, action, **data):
+        """Send Message to paired Handler
+        """
+        if not self.game_id:
+            return
+        try:
+            paired_handler = self.game_manager.get_pair(self.game_id, self)
+        except InvalidGameError:
+            logging.error("Inalid Game: {0}. Cannot send pair msg: {1}".format(self.game_id, data))
+        else:
+            if paired_handler:
+                paired_handler.send_message(action, **data)
+
+
     def send_message(self, action, **data):
-        """Sends the message to the connected subscriber."""
+        """Sends the message to the connected client
+        """
         message = {
             "action": action,
             "data": data

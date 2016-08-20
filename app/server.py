@@ -14,6 +14,8 @@ from app.handlers import TicTacToeHandler, TicTacToeSocketHandler
 from app.game_managers import TicTacToeGameManager
 
 def main():
+    """Creates Tornado Application and starts the IO Loop
+    """
 
     # Get the Port and Debug mode from command line options
     options.parse_command_line()
