@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  {% block meta %}
+      <meta name="description" content="">
+      <meta name="author" content="Ramesh Sampath">
+  {% end %}
+  <link rel="stylesheet" type="text/css" href="{{ static_url('lib/normalize.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ static_url('lib/skeleton.css') }}">
+  <script type="text/javascript" src="{{ static_url('lib/jquery-3.1.0.min.js') }}"></script>
+  {% block css %} {% end %}
+  <title>{% block title %}Game App{% end %}</title>
+  {% block style %}{% end %}
+</head>
+
+<body>
+  <div class="container">
+    {% block body %}{% end %}
+  </div>
+  {% block js %} {% end %}
+</body>
+</html>

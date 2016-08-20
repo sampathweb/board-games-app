@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% block style %}
+<style>
+  ul.row {
+    margin: 0;
+  }
+  ul.row li button {
+      overflow: auto;
+      height: 5em;
+      width: 5em;
+  }
+
+  ul.row li  {
+      display: inline;
+  }
+
+  button.btn-marker  {
+    padding: 0;
+  }
+
+  button span {
+      font-size: 3em;
+      margin: 0;
+      padding: 0;
+  }
+/* or whatever mobile viewport */
+@media only screen and (max-width: 960px) {
+  .filler { display: none}
+}
+</style>
+{% end %}
+{% block body %}
+  <h1>Tic-Tac-Toe</h1>
+  <div class="row">
+    <div class="one-third column">
+      <input class="u-full-width" type="text" placeholder="Enter Game Room # to Join" id="game-room">
+    </div>
+    <div class="one-third column">
+      <input class="button-primary" type="submit" id="game-submit" value="New Game">
+    </div>
+  </div>
+  <h4 id="message">Connecting ...</h4>
+  <div>
+      <ul class="row">
+        <li><button class="btn-marker" value="0,0"><span class="content">_</span></button></li>
+        <li><button class="btn-marker" value="0,1"><span class="content">_</span></button></li>
+        <li><button class="btn-marker" value="0,2"><span class="content">_</span></button></li>
+      </ul>
+      <ul class="row">
+        <li><button class="btn-marker" value="1,0"><span class="content">_</span></button></li>
+        <li><button class="btn-marker" value="1,1"><span class="content">_</span></button></li>
+        <li><button class="btn-marker" value="1,2"><span class="content">_</span></button></li>
+      </ul>
+      <ul class="row">
+        <li><button class="btn-marker" value="2,0"><span class="content">_</span></button></li>
+        <li><button class="btn-marker" value="2,1"><span class="content">_</span></button></li>
+        <li><button class="btn-marker" value="2,2"><span class="content">_</span></button></li>
+      </ul>
+  </div>
+{% end %}
+{% block js %}
+  <script type="text/javascript" src="{{ static_url('tic_tac_toe.js') }}""></script>
+{% end %}

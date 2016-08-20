@@ -1,0 +1,19 @@
+# Virtual Env
+venv/
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# OSX Filesystem thing
+.DS_Store
+
+# Log Files
+*.log
+
+# Working Files - not ready to be shared
+local/
+
+# IPython NB Checkpoints
+.ipynb_checkpoints/
