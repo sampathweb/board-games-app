@@ -138,6 +138,16 @@ sudo supervisorctl status
 Open Browser:  `http://<AWS IP>` (App is Live!)
 
 
-Congratulations you have deployed your App
+### Updating App
+
+Each time you update the App via a git pull on your ubuntu instance, restart Supervisor to update the running app process.
+
+```
+sudo supervisorctl restart all  
+# You could also just say - restart board-games-app if you have multiple apps running
+
+# Check if the restart has been successful.
+sudo supervisorctl status
+```
 
 ### The End
