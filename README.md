@@ -117,8 +117,13 @@ environment = PYTHONPATH="/home/ubuntu/projects/board-games-app/venv/bin/"
 
 sudo supervisorctl reload
 
+# Verify that App is running under Supervisor.
+# You may need to wait to few seconds for it go from Starting to Running
+
+sudo supervisorctl status
+
+
 <Your APP is live now>
-```
 ```
 
 ### Test the App
