@@ -1,50 +1,131 @@
-# Sample IRIS API Application
+# Building an Tic Tac Toe App using Tornado and WebSockets
 
-Build IRIS Machine Learning Model using Scikit-Learn and deploy using Tornado Web Framework.
+## Tic Tac Toe
 
-## Setup Environment on Local Machine
+Tic-Tac-Toe game (https://en.wikipedia.org/wiki/Tic-tac-toe) is a classic two player game that I love playing with my kids.  
 
-### Installation
+I built this app using Python 3.5, but tested in Python 2.7 as well.
+
+The Comamnd line version does not require any packages.  The Web version requires Tornado 4 as specified in the requirements.txt
+
+### Command Line App (Play with Computer)
+
+Navigate to board_games folder, then run from your terminal -
+
+`python run_tic_tac_toe.py`
+
+### Two Player version over WebSockets
+
+1. Create a Virtual Environment - `pyvenv venv`.  For Python2, install `virtualenv venv`
+
+2. Activate Virtual Environment - `source venv/bin/activate`.  For Windows, you may need `venv/scripts/activate`.
+
+3. Install Requirments - `pip install -r requirements.txt`.  This will install Tornado Web Framework.
+
+4. Run the App - `python run.py`
+
+5. Open two browser Tabs for `http://localhost:9000` and Play the game.
+
+
+## Deploy Steps Performed on AWS Ubuntu 14.04 LTS EC2 Instance
+
+### Login to AWS Instance:
+
+`ssh -i <your AWS Pem key file> ubuntu@<aws ip>`
+
+
+### Install Python / Git
 
 ```
-cookiecutter https://github.com/sampathweb/cc-iris-api
+sudo apt-get update
+sudo apt-get upgrade
 
-cd <repo>  # cd iris-api
+# Install GIT
+sudo apt-get install git
 
-# Install Packages
-python env/create_env.py
-source activate env/venv  # Windows users: activate env/venv
-python env/install_packages.py
-
-# Build the Model
-python ml_src/build_model.py
-
-# Run the App
-python run.py
-````
-
-### Test App
+# Install Make
+sudo apt-get install make
 
 
-1. Open Browser:  [http://localhost:9000](http://localhost:9000)
+# Install Python 3
+# Go to https://www.python.org/downloads/ and copy link to Python3
 
-2. Command Line:
+wget https://www.python.org/ftp/python/3.5.2/Python-3.5.2.tgz
+
+tar zxvf Python-3.5.2.tgz
+cd Python-3.5.2
+./configure
+make
+sudo make install
+
+# Now test to make sure python3 is installed.
+python3 <enter>
+
+# Once that's confirmed, we don't need the installers anymore.  We can delete them.
+cd ..
+rm Python-3.5.2.tgz
+sudo rm -rf Python-3.5.2/
+```
+
+### Download App Source Code:
 
 ```
-curl -i http://localhost:9000/api/iris/predict -X POST -d '{ "sepal_length": 2, "sepal_width": 5, "petal_length": 3, "petal_width": 4}'
+# Go to home directory
+cd ~
+
+# Create Projects folder where we will clone our app
+mkdir projects
+cd projects
+
+git clone https://github.com/sampathweb/board-games-app.git
+cd board-games-app
+
+# Create Virtual Environment
+pyvenv venv
+source venv/bin/activate
+
+# Install required packages for the app
+pip install -r requirements.txt
+
+# Test by running the app at command line
+python run.py (Confirm that App is running)
 ```
 
-3. Jupyter Notebook:
+### Run in Supervisor Process:
 
-Open new terminal navigate to the new folder `iris-api`.  Start `jupyter notebook`. Open ml_src -> `api_client.ipynb`.  Test the API.
+We want to serve the App under a Supervisor process so that we can Start / Stop and log errors in the app.
 
-Api works!
+Let's install and configure Supervisor.
+
+```
+sudo apt-get install supervisor
+sudo vi /etc/supervisor/conf.d/board-games-app.conf
+<press i insert mode>
 
 
+[program:board-games-app]
+autostart = true
+autorestart = true
+command = /home/ubuntu/projects/board-games-app/venv/bin/python /home/ubuntu/projects/board-games-app/run.py --debug=False --port=80
+numprocs = 1
+startsecs = 10
+stderr_logfile = /var/log/supervisor/board-games-app-err.log
+stdout_logfile = /var/log/supervisor/board-games-app.log
+environment = PYTHONPATH="/home/ubuntu/projects/board-games-app/venv/bin/"
 
-## Credits:
+<escape :wq>
 
-Template from https://github.com/sampathweb/cc-iris-api
+sudo supervisorctl reload
+
+<Your APP is live now>
+```
+```
+
+### Test the App
+
+Open Browser:  `http://<AWS IP>` (App is Live!)
 
 
-### The End.
+Congratulations you have deployed your App
+
+### The End
