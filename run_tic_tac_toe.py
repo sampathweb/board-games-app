@@ -1,6 +1,7 @@
 from __future__ import print_function  # Python 2, 3 Compatibility
 from builtins import input  # Python 2, 3 Compatibility
-from src import TicTacToe, InvalidMoveError
+
+from board_games.tic_tac_toe import TicTacToe, InvalidMoveError
 
 
 def get_bot_level_input():

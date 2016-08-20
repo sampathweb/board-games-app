@@ -1,4 +1,4 @@
-from board_games import TicTacToe, InvalidMoveError
+from board_games.tic_tac_toe import TicTacToe, InvalidMoveError
 
 
 class InvalidGameError(Exception):

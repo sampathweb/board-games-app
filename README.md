@@ -10,9 +10,11 @@ The Comamnd line version does not require any packages.  The Web version require
 
 ### Command Line App (Play with Computer)
 
-Navigate to board_games folder, then run from your terminal -
+Run from your terminal -
 
 `python run_tic_tac_toe.py`
+
+To Test, run `python board_games/test_tic_tac_toe.py`
 
 ### Two Player version over WebSockets
 
@@ -22,7 +24,7 @@ Navigate to board_games folder, then run from your terminal -
 
 3. Install Requirments - `pip install -r requirements.txt`.  This will install Tornado Web Framework.
 
-4. Run the App - `python run.py`
+4. Run the App - `python run_server.py`
 
 5. Open two browser Tabs for `http://localhost:9000` and Play the game.
 
@@ -95,7 +97,7 @@ source venv/bin/activate
 pip install -r requirements.txt
 
 # Test by running the app at command line
-python run.py (Confirm that App is running)
+python run_server.py (Confirm that App is running)
 ```
 
 ### Run in Supervisor Process:
@@ -113,7 +115,7 @@ sudo vi /etc/supervisor/conf.d/board-games-app.conf
 [program:board-games-app]
 autostart = true
 autorestart = true
-command = /home/ubuntu/projects/board-games-app/venv/bin/python /home/ubuntu/projects/board-games-app/run.py --debug=False --port=80
+command = /home/ubuntu/projects/board-games-app/venv/bin/python /home/ubuntu/projects/board-games-app/run_server.py --debug=False --port=80
 numprocs = 1
 startsecs = 10
 stderr_logfile = /var/log/supervisor/board-games-app-err.log
